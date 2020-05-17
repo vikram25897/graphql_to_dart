@@ -5,6 +5,7 @@ import 'package:graphql_to_dart/src/constants/type_converters.dart';
 import 'package:graphql_to_dart/src/models/config.dart';
 import 'package:graphql_to_dart/src/models/graphql_types.dart';
 import 'package:recase/recase.dart';
+import 'package:graphql_to_dart/src/utils/helper_function.dart';
 
 class TypeBuilder {
   static const String nonNull = "NON_NULL";
@@ -32,9 +33,12 @@ class TypeBuilder {
 
   _addImports() {
     StringBuffer importBuffer = StringBuffer();
-    localFields.forEach((field) {
-      if(field.object == true)
-        importBuffer.writeln("import 'package:${config.packageName}/${config.modelsDirectoryPath.replaceAll(r"lib/", "")}/${pascalToSnake(field.type)}.dart';".replaceAll(r"//", r"/"));
+    localFields.unique<String>((field) => field.type).forEach((field) {
+      if (field.object == true) {
+        importBuffer.writeln(
+            "import 'package:${config.packageName}/${config.modelsDirectoryPath.replaceAll(r"lib/", "")}/${pascalToSnake(field.type)}.dart';"
+                .replaceAll(r"//", r"/"));
+      }
     });
     String current = stringBuffer.toString();
     current = _wrapWith(current, importBuffer.toString() + "\n", "");
@@ -47,17 +51,21 @@ class TypeBuilder {
     toJsonBuilder.writeln("Map data = {};");
     localFields.forEach((field) {
       if (field.list == true) {
-        if(field.type == "DateTime"){
-          toJsonBuilder.writeln("data['${field.name}'] = List.generate(${field.name}?.length ?? 0, (index)=> ${field.name}[index].toString());");
-        } else if(field.object == true){
-          toJsonBuilder.writeln("data['${field.name}'] = List.generate(${field.name}?.length ?? 0, (index)=> ${field.name}[index].toJson());");
+        if (field.type == "DateTime") {
+          toJsonBuilder.writeln(
+              "data['${field.name}'] = List.generate(${field.name}?.length ?? 0, (index)=> ${field.name}[index].toString());");
+        } else if (field.object == true) {
+          toJsonBuilder.writeln(
+              "data['${field.name}'] = List.generate(${field.name}?.length ?? 0, (index)=> ${field.name}[index].toJson());");
         } else {
           toJsonBuilder.writeln("data['${field.name}'] = ${field.name};");
         }
       } else if (field.object == true) {
-        toJsonBuilder.writeln("data['${field.name}'] = ${field.name}?.toJson();");
+        toJsonBuilder
+            .writeln("data['${field.name}'] = ${field.name}?.toJson();");
       } else if (field.type == "DateTime") {
-        toJsonBuilder.writeln("data['${field.name}'] = ${field.name}?.toString();");
+        toJsonBuilder
+            .writeln("data['${field.name}'] = ${field.name}?.toString();");
       } else {
         toJsonBuilder.writeln("data['${field.name}'] = ${field.name};");
       }
@@ -65,8 +73,8 @@ class TypeBuilder {
     stringBuffer.writeln();
     toJsonBuilder.writeln("return data;");
     stringBuffer.writeln();
-    stringBuffer.write(_wrapWith(toJsonBuilder.toString(),
-        "Map toJson(){", "}"));
+    stringBuffer
+        .write(_wrapWith(toJsonBuilder.toString(), "Map toJson(){", "}"));
   }
 
   _addFromJson() {
@@ -96,7 +104,9 @@ ${field.object == true ? "List.generate(json['${field.name}'].length, (index)=> 
   _saveToFile() async {
     File file = File(FileConstants().modelsDirectory.path +
         "/${pascalToSnake(type.name)}.dart".replaceAll(r"//", r"/"));
-    if (!(await file.exists())) await file.create();
+    if (!(await file.exists())) {
+      await file.create();
+    }
     await file.writeAsString(stringBuffer.toString());
     return null;
   }
@@ -109,12 +119,14 @@ ${field.object == true ? "List.generate(json['${field.name}'].length, (index)=> 
 
   _addConstructor() {
     StringBuffer constructorBuffer = StringBuffer();
-    for(int i =0; i<localFields.length; i++){
+    for (int i = 0; i < localFields.length; i++) {
       constructorBuffer.write("this.${localFields[i].name}");
-      if(i<localFields.length-1)
+      if (i < localFields.length - 1) {
         constructorBuffer.write(",");
+      }
     }
-    stringBuffer.writeln(_wrapWith(constructorBuffer.toString(), "${type.name}({", "});"));
+    stringBuffer.writeln(
+        _wrapWith(constructorBuffer.toString(), "${type.name}({", "});"));
   }
 
   _typeOrdering(Type type, String fieldName) {
@@ -168,5 +180,11 @@ class LocalField {
 
   String toDeclarationStatement() {
     return "${list ? "List<" : ""}${type ?? "var"}${list ? ">" : ""} $name;";
+  }
+
+  @override
+  String toString() {
+    // TODO: implement toString
+    return type;
   }
 }

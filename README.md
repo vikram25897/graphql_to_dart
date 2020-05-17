@@ -1,6 +1,8 @@
-#GraphQL To Dart
+# GraphQL To Dart
+
 Generate Dart models from an GraphQL endpoint by running a simple command.
 ## Usage
+
 Add `graphql_to_dart` as a dev dependency.
 
 ```yaml

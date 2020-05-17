@@ -5,15 +5,15 @@ class GraphQLSchema {
 
   GraphQLSchema.fromJson(Map<String, dynamic> json) {
     if (json['types'] != null) {
-      types = new List<Types>();
+      types = List<Types>();
       json['types'].forEach((v) {
-        types.add(new Types.fromJson(v));
+        types.add(Types.fromJson(v));
       });
     }
   }
 
   Map<String, dynamic> toJson() {
-    final Map<String, dynamic> data = new Map<String, dynamic>();
+    final Map<String, dynamic> data = Map<String, dynamic>();
     if (this.types != null) {
       data['types'] = this.types.map((v) => v.toJson()).toList();
     }
@@ -31,19 +31,19 @@ class Types {
 
   Types.fromJson(Map<String, dynamic> json) {
     if (json['fields'] != null) {
-      fields = new List<Fields>();
+      fields = List<Fields>();
       json['fields'].forEach((v) {
-        fields.add(new Fields.fromJson(v));
+        fields.add(Fields.fromJson(v));
       });
     }
     inputFields = json['inputFields'];
     kind = json['kind'];
     name = json['name'];
-    ofType = json['ofType']!=null?Type.fromJson(json['ofType']):null;
+    ofType = json['ofType'] != null ? Type.fromJson(json['ofType']) : null;
   }
 
   Map<String, dynamic> toJson() {
-    final Map<String, dynamic> data = new Map<String, dynamic>();
+    final Map<String, dynamic> data = Map<String, dynamic>();
     if (this.fields != null) {
       data['fields'] = this.fields.map((v) => v.toJson()).toList();
     }
@@ -64,11 +64,11 @@ class Fields {
   Fields.fromJson(Map<String, dynamic> json) {
     description = json['description'];
     name = json['name'];
-    type = json['type'] != null ? new Type.fromJson(json['type']) : null;
+    type = json['type'] != null ? Type.fromJson(json['type']) : null;
   }
 
   Map<String, dynamic> toJson() {
-    final Map<String, dynamic> data = new Map<String, dynamic>();
+    final Map<String, dynamic> data = Map<String, dynamic>();
     data['description'] = this.description;
     data['name'] = this.name;
     if (this.type != null) {
@@ -88,11 +88,11 @@ class Type {
   Type.fromJson(Map<String, dynamic> json) {
     kind = json['kind'];
     name = json['name'];
-    ofType = json['ofType'] != null ? new Type.fromJson(json['ofType']) : null;
+    ofType = json['ofType'] != null ? Type.fromJson(json['ofType']) : null;
   }
 
   Map<String, dynamic> toJson() {
-    final Map<String, dynamic> data = new Map<String, dynamic>();
+    final Map<String, dynamic> data = Map<String, dynamic>();
     data['kind'] = this.kind;
     data['name'] = this.name;
     if (this.ofType != null) {
@@ -114,7 +114,7 @@ class OfType {
   }
 
   Map<String, dynamic> toJson() {
-    final Map<String, dynamic> data = new Map<String, dynamic>();
+    final Map<String, dynamic> data = Map<String, dynamic>();
     data['kind'] = this.kind;
     data['name'] = this.name;
     return data;

@@ -1,6 +1,6 @@
 import 'dart:io';
 
-class FileConstants{
+class FileConstants {
   FileConstants._();
   static FileConstants _instance = FileConstants._();
   factory FileConstants() => _instance;

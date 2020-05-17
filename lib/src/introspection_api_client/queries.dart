@@ -1,4 +1,4 @@
-class Queries{
+class Queries {
   static const String types = """
     {
   __schema{

@@ -1,0 +1,5 @@
+package_name: example
+graphql_endpoint: https://graphql-pokemon.now.sh/
+models_directory_path: lib/graphql/models/
+type_override:
+  id: int
