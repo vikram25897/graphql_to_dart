@@ -2,7 +2,7 @@ name: graphql_to_dart
 description: A simple dart package to generate complete Dart models from a GraphQL endpoint by leveraging GraphQL introspection API.
 version: 1.0.0
 homepage: https://github.com/vikram25897/graphql_to_dart
-
+author: Vikram Pratap Singh <vikram25897@gmail.com>
 environment:
   sdk: '>=2.6.0 <3.0.0'
 
