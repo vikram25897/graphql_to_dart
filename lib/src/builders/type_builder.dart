@@ -35,9 +35,16 @@ class TypeBuilder {
     StringBuffer importBuffer = StringBuffer();
     localFields.unique<String>((field) => field.type).forEach((field) {
       if (field.object == true) {
+        if(config.dynamicImportPath){
         importBuffer.writeln(
             "import 'package:${config.packageName}/${config.modelsDirectoryPath.replaceAll(r"lib/", "")}/${pascalToSnake(field.type)}.dart';"
                 .replaceAll(r"//", r"/"));
+      }
+        else{
+          importBuffer.writeln(
+            "import '${pascalToSnake(field.type)}.dart';"
+                .replaceAll(r"//", r"/"));
+        }
       }
     });
     String current = stringBuffer.toString();
