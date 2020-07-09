@@ -55,35 +55,35 @@ class TypeBuilder {
 
   _addToJson() {
     StringBuffer toJsonBuilder = StringBuffer();
-    toJsonBuilder.writeln("Map data = {};");
+    toJsonBuilder.writeln("Map _data = {};");
     localFields.forEach((field) {
       if (field.list == true) {
         if (field.type == "DateTime") {
           toJsonBuilder.writeln(
-              "data['${field.name}'] = List.generate(${field.name}?.length ?? 0, (index)=> ${field.name}[index].toString());");
+              "_data['${field.name}'] = List.generate(${field.name}?.length ?? 0, (index)=> ${field.name}[index].toString());");
         } else if (field.object == true) {
           toJsonBuilder.writeln(
-              "data['${field.name}'] = List.generate(${field.name}?.length ?? 0, (index)=> ${field.name}[index].toJson());");
+              "_data['${field.name}'] = List.generate(${field.name}?.length ?? 0, (index)=> ${field.name}[index].toJson());");
         } else {
-          toJsonBuilder.writeln("data['${field.name}'] = ${field.name};");
+          toJsonBuilder.writeln("_data['${field.name}'] = ${field.name};");
         }
       } else if (field.object == true) {
         toJsonBuilder
-            .writeln("data['${field.name}'] = ${field.name}?.toJson();");
+            .writeln("_data['${field.name}'] = ${field.name}?.toJson();");
       } else if (field.type == "DateTime") {
         toJsonBuilder
-            .writeln("data['${field.name}'] = ${field.name}?.toString();");
+            .writeln("_data['${field.name}'] = ${field.name}?.toString();");
       } else {
-        toJsonBuilder.writeln("data['${field.name}'] = ${field.name};");
+        toJsonBuilder.writeln("_data['${field.name}'] = ${field.name};");
       }
     });
     stringBuffer.writeln();
-    toJsonBuilder.writeln("return data;");
+    toJsonBuilder.writeln("return _data;");
     stringBuffer.writeln();
     stringBuffer
         .write(_wrapWith(toJsonBuilder.toString(), "Map toJson(){", "}"));
   }
-
+  
   _addFromJson() {
     StringBuffer fromJsonBuilder = StringBuffer();
     localFields.forEach((field) {
