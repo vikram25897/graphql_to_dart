@@ -19,7 +19,7 @@ class Config {
 //    mutationsFilePath = map['mutations_file_path']?.toString();
 //    subscriptionsFilePath = map['subscriptions_file_path']?.toString();
     modelsDirectoryPath = map['models_directory_path']?.toString();
-    dynamicImportPath = map['dynamic_import_path']?.toString() == 'true' ? true : false;
+    dynamicImportPath = map['dynamic_import_path']?.toString() == 'false' ? false : true;
 
     packageName = map['package_name'];
     typeOverride = map['type_override'];
