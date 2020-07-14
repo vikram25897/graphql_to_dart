@@ -138,7 +138,6 @@ ${field.object == true ? "List.generate(json['${field.name}'].length, (index)=> 
 
   _typeOrdering(Type type, String fieldName) {
     bool list = false;
-    String typeName;
     LocalField localField;
     if (type.kind == "NON_NULL") {
       type = type.ofType;
@@ -151,17 +150,15 @@ ${field.object == true ? "List.generate(json['${field.name}'].length, (index)=> 
       type = type.ofType;
     }
     if (type.kind == scalar) {
-      typeName = type.name.toLowerCase();
       localField = LocalField(
           name: fieldName,
           list: list,
-          type: TypeConverters().nonObjectTypes[typeName],
+          type: TypeConverters().nonObjectTypes[type.name.toLowerCase()],
           object: false);
       localFields.add(localField);
     } else {
-      typeName = type.name;
       localField =
-          LocalField(name: fieldName, list: list, type: typeName, object: true);
+          LocalField(name: fieldName, list: list, type: type.name, object: true);
       localFields.add(localField);
     }
     stringBuffer.writeln(localField.toDeclarationStatement());
