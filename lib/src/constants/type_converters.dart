@@ -17,7 +17,7 @@ class TypeConverters {
 
   void overrideTypes(Map newTypes) {
     newTypes?.forEach((key, value) {
-      nonObjectTypes[key] = value;
+      nonObjectTypes[key.toString().toLowerCase()] = value;
     });
   }
 }

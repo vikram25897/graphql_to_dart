@@ -35,9 +35,16 @@ class TypeBuilder {
     StringBuffer importBuffer = StringBuffer();
     localFields.unique<String>((field) => field.type).forEach((field) {
       if (field.object == true) {
+        if(config.dynamicImportPath){
         importBuffer.writeln(
             "import 'package:${config.packageName}/${config.modelsDirectoryPath.replaceAll(r"lib/", "")}/${pascalToSnake(field.type)}.dart';"
                 .replaceAll(r"//", r"/"));
+      }
+        else{
+          importBuffer.writeln(
+            "import '${pascalToSnake(field.type)}.dart';"
+                .replaceAll(r"//", r"/"));
+        }
       }
     });
     String current = stringBuffer.toString();
@@ -48,35 +55,35 @@ class TypeBuilder {
 
   _addToJson() {
     StringBuffer toJsonBuilder = StringBuffer();
-    toJsonBuilder.writeln("Map data = {};");
+    toJsonBuilder.writeln("Map _data = {};");
     localFields.forEach((field) {
       if (field.list == true) {
         if (field.type == "DateTime") {
           toJsonBuilder.writeln(
-              "data['${field.name}'] = List.generate(${field.name}?.length ?? 0, (index)=> ${field.name}[index].toString());");
+              "_data['${field.name}'] = List.generate(${field.name}?.length ?? 0, (index)=> ${field.name}[index].toString());");
         } else if (field.object == true) {
           toJsonBuilder.writeln(
-              "data['${field.name}'] = List.generate(${field.name}?.length ?? 0, (index)=> ${field.name}[index].toJson());");
+              "_data['${field.name}'] = List.generate(${field.name}?.length ?? 0, (index)=> ${field.name}[index].toJson());");
         } else {
-          toJsonBuilder.writeln("data['${field.name}'] = ${field.name};");
+          toJsonBuilder.writeln("_data['${field.name}'] = ${field.name};");
         }
       } else if (field.object == true) {
         toJsonBuilder
-            .writeln("data['${field.name}'] = ${field.name}?.toJson();");
+            .writeln("_data['${field.name}'] = ${field.name}?.toJson();");
       } else if (field.type == "DateTime") {
         toJsonBuilder
-            .writeln("data['${field.name}'] = ${field.name}?.toString();");
+            .writeln("_data['${field.name}'] = ${field.name}?.toString();");
       } else {
-        toJsonBuilder.writeln("data['${field.name}'] = ${field.name};");
+        toJsonBuilder.writeln("_data['${field.name}'] = ${field.name};");
       }
     });
     stringBuffer.writeln();
-    toJsonBuilder.writeln("return data;");
+    toJsonBuilder.writeln("return _data;");
     stringBuffer.writeln();
     stringBuffer
         .write(_wrapWith(toJsonBuilder.toString(), "Map toJson(){", "}"));
   }
-
+  
   _addFromJson() {
     StringBuffer fromJsonBuilder = StringBuffer();
     localFields.forEach((field) {
@@ -131,7 +138,6 @@ ${field.object == true ? "List.generate(json['${field.name}'].length, (index)=> 
 
   _typeOrdering(Type type, String fieldName) {
     bool list = false;
-    String typeName;
     LocalField localField;
     if (type.kind == "NON_NULL") {
       type = type.ofType;
@@ -144,17 +150,15 @@ ${field.object == true ? "List.generate(json['${field.name}'].length, (index)=> 
       type = type.ofType;
     }
     if (type.kind == scalar) {
-      typeName = type.name.toLowerCase();
       localField = LocalField(
           name: fieldName,
           list: list,
-          type: TypeConverters().nonObjectTypes[typeName],
+          type: TypeConverters().nonObjectTypes[type.name.toLowerCase()],
           object: false);
       localFields.add(localField);
     } else {
-      typeName = type.name;
       localField =
-          LocalField(name: fieldName, list: list, type: typeName, object: true);
+          LocalField(name: fieldName, list: list, type: type.name, object: true);
       localFields.add(localField);
     }
     stringBuffer.writeln(localField.toDeclarationStatement());

@@ -21,11 +21,14 @@ A simple `graphql_config.yaml` file will look something like this:
       id: int
 ```
 
-#### Note: All options except `type_override` are required.
+#### Note: All options except `type_override` and `dynamic_import_path` are required.
 
 Run the command `flutter packages pub run graphql_to_dart` if you are using Flutter, otherwise simply `pub run graphql_to_dart`.
 
 You can find the generated models in the path you provided to `models_directory_path` argument in `graphql_config.yaml`.
+
+When you set `models_directory_path` outside of `lib/`, `import 'package:packagename/path/filename.dart';` is not applicable.
+Add option `dynamic_import_path: false` for `import 'filename.dart'`. 
 
 
 ### Milestones
