@@ -19,15 +19,26 @@ class TypeBuilder {
   TypeBuilder(this.type, this.config);
 
   Future build() async {
-    _addFields();
-    _addConstructor();
-    _addFromJson();
-    _addToJson();
-    String current = stringBuffer.toString();
-    stringBuffer.clear();
-    current = _wrapWith(current, "class ${type.name}{", "}");
-    stringBuffer.write(current.toString());
-    _addImports();
+    if (type.fields != null) {
+      _addFields();
+    }
+    if (type.inputFields != null) {
+      _addInputFields();
+    }
+    if (type.kind == 'ENUM') {
+      _addEnumValues();
+
+    } else {
+      _addConstructor();
+      _addFromJson();
+      _addToJson();
+      String current = stringBuffer.toString();
+      stringBuffer.clear();
+      current = _wrapWith(current, "class ${type.name}{", "}");
+      stringBuffer.write(current.toString());
+      _addImports();
+    }
+
     await _saveToFile();
   }
 
@@ -35,15 +46,13 @@ class TypeBuilder {
     StringBuffer importBuffer = StringBuffer();
     localFields.unique<String>((field) => field.type).forEach((field) {
       if (field.object == true) {
-        if(config.dynamicImportPath){
-        importBuffer.writeln(
-            "import 'package:${config.packageName}/${config.modelsDirectoryPath.replaceAll(r"lib/", "")}/${pascalToSnake(field.type)}.dart';"
-                .replaceAll(r"//", r"/"));
-      }
-        else{
+        if (config.dynamicImportPath) {
           importBuffer.writeln(
-            "import '${pascalToSnake(field.type)}.dart';"
-                .replaceAll(r"//", r"/"));
+              "import 'package:${config.packageName}/${config.modelsDirectoryPath.replaceAll(r"lib/", "")}/${pascalToSnake(field.type)}.dart';"
+                  .replaceAll(r"//", r"/"));
+        } else {
+          importBuffer.writeln("import '${pascalToSnake(field.type)}.dart';"
+              .replaceAll(r"//", r"/"));
         }
       }
     });
@@ -83,7 +92,7 @@ class TypeBuilder {
     stringBuffer
         .write(_wrapWith(toJsonBuilder.toString(), "Map toJson(){", "}"));
   }
-  
+
   _addFromJson() {
     StringBuffer fromJsonBuilder = StringBuffer();
     localFields.forEach((field) {
@@ -92,6 +101,8 @@ class TypeBuilder {
 ${field.name} = json['${field.name}']!=null ?
 ${field.object == true ? "List.generate(json['${field.name}'].length, (index)=> ${field.type}.fromJson(json['${field.name}'][index]))" : field.type == "DateTime" ? "List.generate(json['${field.name}'].length, (index)=> DateTime.parse(json['${field.name}'][index]))" : "json['${field.name}']"}: null;
         """);
+      } else if (field.isEnum){
+        // fromJsonBuilder.writeln("${field.name} = json['${field.name}'];");
       } else if (field.object == true) {
         fromJsonBuilder.writeln(
             "${field.name} = json['${field.name}']!=null ? ${field.type}.fromJson(json['${field.name}']) : null;");
@@ -99,7 +110,12 @@ ${field.object == true ? "List.generate(json['${field.name}'].length, (index)=> 
         fromJsonBuilder.writeln(
             "${field.name} = json['${field.name}']!=null ? DateTime.parse(json['${field.name}']) : null;");
       } else {
-        fromJsonBuilder.writeln("${field.name} = json['${field.name}'];");
+        if(field.type=='double'){
+          fromJsonBuilder.writeln("${field.name} = json['${field.name}']?.toDouble();");
+
+        }else{
+          fromJsonBuilder.writeln("${field.name} = json['${field.name}'];");
+        }
       }
     });
     stringBuffer.writeln();
@@ -122,6 +138,29 @@ ${field.object == true ? "List.generate(json['${field.name}'].length, (index)=> 
     type.fields.forEach((field) {
       _typeOrdering(field.type, field.name);
     });
+  }
+
+  _addInputFields() {
+    type.inputFields.forEach((field) {
+      _typeOrdering(field.type, field.name);
+    });
+  }
+
+  _addEnumValues() {
+    // stringBuffer.writeln("import 'package:flutter/foundation.dart';");
+    stringBuffer
+        .writeln('enum ${type.name}{\n${type.enumValues.map((e) => e.name).join(',\n')}\n}');
+//     stringBuffer.writeln('''
+//     extension ${type.name}Index on ${type.name} {
+//   // Overload the [] getter to get the name of the fruit.
+//   operator[](String key) => (name){
+//     switch(name) {
+//      ${type.enumValues.map((e) => "case \'${e.name}\': return ${type.name}.${e.name};" ).join('\n')}
+//       default:       throw RangeError("enum ${type.name} contains no value '\$name'");
+//     }
+//   }(key);
+// }
+//     ''');
   }
 
   _addConstructor() {
@@ -156,9 +195,17 @@ ${field.object == true ? "List.generate(json['${field.name}'].length, (index)=> 
           type: TypeConverters().nonObjectTypes[type.name.toLowerCase()],
           object: false);
       localFields.add(localField);
+    } else if (type.kind == 'ENUM') {
+      localField = LocalField(
+          name: fieldName,
+          list: list,
+          type: TypeConverters().nonObjectTypes['string'],
+          object: false,
+          /*isEnum: true*/);
+      localFields.add(localField);
     } else {
-      localField =
-          LocalField(name: fieldName, list: list, type: type.name, object: true);
+      localField = LocalField(
+          name: fieldName, list: list, type: type.name, object: true);
       localFields.add(localField);
     }
     stringBuffer.writeln(localField.toDeclarationStatement());
@@ -179,8 +226,10 @@ class LocalField {
   final bool list;
   final String type;
   final bool object;
+  final bool isEnum;
 
-  LocalField({this.name, this.list, this.type, this.object});
+  LocalField(
+      {this.name, this.list, this.type, this.object, this.isEnum = false});
 
   String toDeclarationStatement() {
     return "${list ? "List<" : ""}${type ?? "var"}${list ? ">" : ""} $name;";

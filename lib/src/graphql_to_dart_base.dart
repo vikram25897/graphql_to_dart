@@ -41,6 +41,21 @@ class GraphQlToDart {
         TypeBuilder builder = TypeBuilder(type, config);
         await builder.build();
       }
+      if(type.kind=='INPUT_OBJECT'&&
+          type.fields==null&&
+          type.inputFields!=null){
+        print("Creating input model from: ${type.name}");
+        TypeBuilder builder = TypeBuilder(type, config);
+        await builder.build();
+      }
+      if(type.kind=='ENUM'&&
+          type.fields==null&&
+          !type.name.startsWith("__") &&
+          type.inputFields==null){
+        print("Creating enum model from: ${type.name}");
+        TypeBuilder builder = TypeBuilder(type,config);
+        await builder.build();
+      }
     });
     print("Formatting Generated Files");
     await runFlutterFormat();
