@@ -17,6 +17,29 @@ class Queries {
           }
         }
       }
+      enumValues{
+        name
+      }
+      inputFields{
+       name
+        description
+        type{
+        name
+        kind
+        ofType{
+          name
+          kind
+          ofType{
+            name
+            kind
+            ofType{
+              name
+              kind
+            }
+          }
+        }
+      }
+      }
       fields{
         name
         description

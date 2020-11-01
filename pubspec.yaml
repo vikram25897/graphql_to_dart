@@ -7,6 +7,6 @@ environment:
 
 dependencies:
   yaml: ^2.2.1
-  graphql: ^3.0.1
+  graphql: ^4.0.0-beta.2
   recase: ^3.0.0
 
