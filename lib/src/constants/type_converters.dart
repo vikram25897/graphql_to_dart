@@ -2,7 +2,7 @@ class TypeConverters {
   TypeConverters._();
   static TypeConverters _instance = TypeConverters._();
   factory TypeConverters() => _instance;
-  Map<String, String> nonObjectTypes = {
+  Map<String, String?> nonObjectTypes = {
     "string": "String",
     "int": "int",
     "float": "double",
@@ -15,7 +15,7 @@ class TypeConverters {
     "uuid": "String"
   };
 
-  void overrideTypes(Map newTypes) {
+  void overrideTypes(Map? newTypes) {
     newTypes?.forEach((key, value) {
       nonObjectTypes[key.toString().toLowerCase()] = value;
     });

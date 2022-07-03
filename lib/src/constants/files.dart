@@ -8,5 +8,5 @@ class FileConstants {
 //  File queriesFile;
 //  File mutationsFile;
 //  File subscriptionsFile;
-  Directory modelsDirectory;
+  late Directory modelsDirectory;
 }

@@ -24,18 +24,18 @@ class GraphQlToDart {
   init() async {
     Config config = await ConfigParser.parse(yamlFilePath);
     ValidationResult result = await config.validate();
-    if (result.hasError) {
-      throw result.errorMessage;
+    if (result.hasError!) {
+      throw result.errorMessage!;
     }
     LocalGraphQLClient localGraphQLClient = LocalGraphQLClient();
     localGraphQLClient.init(config);
     final schema = await localGraphQLClient.fetchTypes();
     TypeConverters converters = TypeConverters();
     converters.overrideTypes(config.typeOverride);
-    await Future.forEach(schema.types, (Types type) async {
+    await Future.forEach(schema.types!, (Types type) async {
       if (type.fields != null &&
           type.inputFields == null &&
-          !type.name.startsWith("__") &&
+          !type.name!.startsWith("__") &&
           !ignoreFields.contains(type.name?.toLowerCase())) {
         print("Creating model from: ${type.name}");
         TypeBuilder builder = TypeBuilder(type, config);

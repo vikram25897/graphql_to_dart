@@ -33,16 +33,16 @@ class TypeBuilder {
 
   _addImports() {
     StringBuffer importBuffer = StringBuffer();
-    localFields.unique<String>((field) => field.type).forEach((field) {
+    localFields.unique<String?>((field) => field.type).forEach((field) {
       if (field.object == true) {
         if(config.dynamicImportPath){
         importBuffer.writeln(
-            "import 'package:${config.packageName}/${config.modelsDirectoryPath.replaceAll(r"lib/", "")}/${pascalToSnake(field.type)}.dart';"
+            "import 'package:${config.packageName}/${config.modelsDirectoryPath!.replaceAll(r"lib/", "")}/${pascalToSnake(field.type!)}.dart';"
                 .replaceAll(r"//", r"/"));
       }
         else{
           importBuffer.writeln(
-            "import '${pascalToSnake(field.type)}.dart';"
+            "import '${pascalToSnake(field.type!)}.dart';"
                 .replaceAll(r"//", r"/"));
         }
       }
@@ -110,7 +110,7 @@ ${field.object == true ? "List.generate(json['${field.name}'].length, (index)=> 
 
   _saveToFile() async {
     File file = File(FileConstants().modelsDirectory.path +
-        "/${pascalToSnake(type.name)}.dart".replaceAll(r"//", r"/"));
+        "/${pascalToSnake(type.name!)}.dart".replaceAll(r"//", r"/"));
     if (!(await file.exists())) {
       await file.create();
     }
@@ -119,8 +119,8 @@ ${field.object == true ? "List.generate(json['${field.name}'].length, (index)=> 
   }
 
   _addFields() {
-    type.fields.forEach((field) {
-      _typeOrdering(field.type, field.name);
+    type.fields!.forEach((field) {
+      _typeOrdering(field.type!, field.name);
     });
   }
 
@@ -136,24 +136,24 @@ ${field.object == true ? "List.generate(json['${field.name}'].length, (index)=> 
         _wrapWith(constructorBuffer.toString(), "${type.name}({", "});"));
   }
 
-  _typeOrdering(Type type, String fieldName) {
+  _typeOrdering(Type type, String? fieldName) {
     bool list = false;
     LocalField localField;
     if (type.kind == "NON_NULL") {
-      type = type.ofType;
+      type = type.ofType!;
     }
     if (type.kind == "LIST") {
       list = true;
-      type = type.ofType;
+      type = type.ofType!;
     }
     if (type.kind == "NON_NULL") {
-      type = type.ofType;
+      type = type.ofType!;
     }
     if (type.kind == scalar) {
       localField = LocalField(
           name: fieldName,
           list: list,
-          type: TypeConverters().nonObjectTypes[type.name.toLowerCase()],
+          type: TypeConverters().nonObjectTypes[type.name!.toLowerCase()],
           object: false);
       localFields.add(localField);
     } else {
@@ -175,20 +175,20 @@ ${field.object == true ? "List.generate(json['${field.name}'].length, (index)=> 
 }
 
 class LocalField {
-  final String name;
-  final bool list;
-  final String type;
-  final bool object;
+  final String? name;
+  final bool? list;
+  final String? type;
+  final bool? object;
 
   LocalField({this.name, this.list, this.type, this.object});
 
   String toDeclarationStatement() {
-    return "${list ? "List<" : ""}${type ?? "var"}${list ? ">" : ""} $name;";
+    return "${list! ? "List<" : ""}${type ?? "var"}${list! ? ">" : ""} $name;";
   }
 
   @override
   String toString() {
     // TODO: implement toString
-    return type;
+    return type!;
   }
 }

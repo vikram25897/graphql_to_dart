@@ -4,14 +4,14 @@ import 'package:graphql_to_dart/src/constants/files.dart';
 import 'package:yaml/yaml.dart';
 
 class Config {
-  String graphQLEndpoint;
+  String? graphQLEndpoint;
 //  String queriesFilePath;
 //  String mutationsFilePath;
 //  String subscriptionsFilePath;
-  String packageName;
-  String modelsDirectoryPath;
-  bool dynamicImportPath;
-  YamlMap typeOverride;
+  String? packageName;
+  String? modelsDirectoryPath;
+  late bool dynamicImportPath;
+  YamlMap? typeOverride;
   Config({this.modelsDirectoryPath});
   Config.fromJson(Map map) {
     graphQLEndpoint = map['graphql_endpoint']?.toString();
@@ -28,7 +28,7 @@ class Config {
 //    File queriesFile = File(queriesFilePath);
 //    File mutationsFile = File(mutationsFilePath);
 //    File subscriptionsFile = File(subscriptionsFilePath);
-    Directory modelsDirectory = Directory(modelsDirectoryPath);
+    Directory modelsDirectory = Directory(modelsDirectoryPath!);
     try {
 //      if(!(await queriesFile.exists()))
 //        await createRecursive(queriesFile);
@@ -52,7 +52,7 @@ class Config {
     }
   }
 
-  Future<FileSystemEntity> createRecursive(FileSystemEntity file) {
+  Future<FileSystemEntity>? createRecursive(FileSystemEntity file) {
     if (file is File) {
       return file.create(recursive: true);
     } else {
@@ -63,8 +63,8 @@ class Config {
 }
 
 class ValidationResult {
-  bool hasError;
-  String errorMessage;
+  bool? hasError;
+  String? errorMessage;
 
   ValidationResult({this.hasError, this.errorMessage});
 }
